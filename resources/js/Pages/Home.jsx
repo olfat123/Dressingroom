@@ -6,7 +6,7 @@ import SearchBar from '@/Components/App/SearchBar';
 import { useTrans, useLocale } from '@/i18n';
 import { ArrowRight, Truck, ShieldCheck, RotateCcw, Star } from 'lucide-react';
 
-export default function Home({ departments, featuredCategories, featuredProducts, mostSellingProducts, latestViewedProducts, latestPosts, hero, sections }) {
+export default function Home({ departments, featuredCategories, featuredVendors, featuredProducts, mostSellingProducts, latestViewedProducts, latestPosts, hero, sections }) {
     const t = useTrans();
     const locale = useLocale();
 
@@ -111,9 +111,16 @@ export default function Home({ departments, featuredCategories, featuredProducts
                             {departments.map((dept, i) => (
                                 <Link
                                     key={dept.id}
-                                    href={route('shop')}
+                                    href={route('shop', { department_id: dept.id })}
                                     className="group relative overflow-hidden rounded-sm aspect-square flex items-end p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-muted"
                                 >
+                                    {dept.image_url && (
+                                        <img
+                                            src={dept.image_url}
+                                            alt={dept.name}
+                                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-foreground/10" />
                                     <div className="relative z-10">
                                         <p className="text-primary-foreground font-display text-xl font-medium">{dept.name}</p>
@@ -156,6 +163,39 @@ export default function Home({ departments, featuredCategories, featuredProducts
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             {mostSellingProducts.data.map(product => <ProductItem product={product} key={product.id} />)}
                         </div>
+                    </div>
+                </section>
+            )}
+
+            {/* ── Featured Vendors ──────────────────────────────── */}
+            {featuredVendors?.length > 0 && (
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                    <SectionHeader
+                        heading={t('home.featured_vendors.heading')}
+                        subtext={t('home.featured_vendors.subtext')}
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        {featuredVendors.map(vendor => (
+                            <Link
+                                key={vendor.store_slug}
+                                href={route('store.show', vendor.store_slug)}
+                                className="group relative overflow-hidden rounded-sm bg-card border border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                            >
+                                <div className="aspect-[16/7] bg-muted overflow-hidden">
+                                    {vendor.banner_url
+                                        ? <img src={vendor.banner_url} alt={vendor.store_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        : <div className="w-full h-full flex items-center justify-center font-display text-3xl text-muted-foreground">{vendor.store_name?.[0]}</div>
+                                    }
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="font-display text-xl mb-1 group-hover:text-accent transition-colors">{vendor.store_name}</h3>
+                                    {vendor.store_description && (
+                                        <p className="font-body text-sm text-muted-foreground line-clamp-2 mb-3">{vendor.store_description}</p>
+                                    )}
+                                    <span className="font-body text-xs uppercase tracking-wider text-accent">{t('home.featured_vendors.visit')} →</span>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </section>
             )}

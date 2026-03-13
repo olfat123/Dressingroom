@@ -27,4 +27,6 @@ return [
     'contact' => 'Contact',
     'privacy' => 'Privacy Policy',
     'terms' => 'Terms of Service',
+    'customerCare' => 'Customer Care',
+    'vendorProgram' => 'Vendor Program',
 ];

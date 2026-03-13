@@ -27,4 +27,6 @@ return [
     'contact' => 'تواصل معنا',
     'privacy' => 'سياسة الخصوصية',
     'terms' => 'شروط الخدمة',
+    'customerCare' => 'خدمة العملاء',
+    'vendorProgram' => 'برنامج البائعين',
 ];

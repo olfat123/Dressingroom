@@ -36,7 +36,20 @@ class DepartmentResource extends Resource
                 Forms\Components\TextInput::make('slug')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Checkbox::make('active')
+                Forms\Components\Checkbox::make('active'),
+
+                Forms\Components\FileUpload::make('image')
+                    ->label('Department Image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('departments')
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('16:9')
+                    ->imageResizeTargetWidth('1200')
+                    ->imageResizeTargetHeight('675')
+                    ->maxSize(4096)
+                    ->helperText('Recommended: 1200×675 px, max 4 MB.')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -44,6 +57,12 @@ class DepartmentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image')
+                    ->disk('public')
+                    ->square()
+                    ->size(56)
+                    ->label(''),
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),

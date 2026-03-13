@@ -79,9 +79,23 @@ class ProductController extends Controller
                 'department' => $c->department?->name,
             ]);
 
+        $featuredVendors = Vendor::where('is_featured', true)
+            ->where('status', \App\Enums\VendorStatusEnum::APPROVED->value)
+            ->orderBy('store_name')
+            ->get()
+            ->map(fn ($v) => [
+                'store_name'        => $v->store_name,
+                'store_slug'        => $v->store_slug,
+                'store_description' => $v->store_description,
+                'banner_url'        => $v->getFirstMediaUrl('banner', 'large')
+                                       ?: $v->getFirstMediaUrl('banner')
+                                       ?: null,
+            ]);
+
         return Inertia::render('Home', [
             'departments'          => $departments,
             'featuredCategories'   => $featuredCategories,
+            'featuredVendors'      => $featuredVendors,
             'featuredProducts'     => ProductListResource::collection($featuredProducts),
             'mostSellingProducts'  => ProductListResource::collection($mostSellingProducts),
             'latestViewedProducts' => ProductListResource::collection($this->getRecentlyViewedProducts()),

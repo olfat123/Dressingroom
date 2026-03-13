@@ -94,6 +94,9 @@ class VendorResource extends Resource
                         Infolists\Components\TextEntry::make('vendor.store_address')
                             ->label('Store Address')
                             ->placeholder('—'),
+                        Infolists\Components\IconEntry::make('vendor.is_featured')
+                            ->label('Featured on Homepage')
+                            ->boolean(),
                     ]),
 
                 Infolists\Components\Section::make('Bank Account Details')
@@ -143,6 +146,13 @@ class VendorResource extends Resource
                         default                           => 'gray',
                     })
                     ->placeholder('No profile'),
+                Tables\Columns\IconColumn::make('vendor.is_featured')
+                    ->label('Featured')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-star')
+                    ->falseIcon('heroicon-o-star')
+                    ->trueColor('warning')
+                    ->falseColor('gray'),
                 Tables\Columns\TextColumn::make('vendor.store_address')
                     ->label('Address')
                     ->placeholder('—')
@@ -186,6 +196,18 @@ class VendorResource extends Resource
                     )
                     ->requiresConfirmation()
                     ->action(fn (User $record) => $record->vendor->update(['status' => VendorStatusEnum::REJECTED->value])),
+                Tables\Actions\Action::make('toggle_featured')
+                    ->label(fn (User $record): string =>
+                        $record->vendor?->is_featured ? 'Unfeature' : 'Feature'
+                    )
+                    ->icon('heroicon-o-star')
+                    ->color(fn (User $record): string =>
+                        $record->vendor?->is_featured ? 'gray' : 'warning'
+                    )
+                    ->visible(fn (User $record): bool => (bool) $record->vendor)
+                    ->action(fn (User $record) =>
+                        $record->vendor->update(['is_featured' => ! $record->vendor->is_featured])
+                    ),
             ])
             ->bulkActions([]);
     }

@@ -55,4 +55,9 @@ return [
         'heading' => 'Recently Viewed',
         'subtext' => 'Continue where you left off',
     ],
+    'featured_vendors' => [
+        'heading' => 'Featured Stores',
+        'subtext' => 'Discover our handpicked vendors',
+        'visit'   => 'Visit Store',
+    ],
 ];
