@@ -20,6 +20,7 @@ export default function Home({ departments, featuredCategories, featuredVendors,
     const showBest      = sections?.best_sellers      !== false;
     const showRecent    = sections?.recently_viewed   !== false;
     const showBlog      = sections?.blog_posts        !== false;
+    const showDepts     = sections?.departments       !== false;
 
     return (
         <AuthenticatedLayout>
@@ -72,33 +73,8 @@ export default function Home({ departments, featuredCategories, featuredVendors,
                 </div>
             </section>
 
-            {/* ── Shop by Category ──────────────────────────────── */}
-            {featuredCategories?.length > 0 && (
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-                    <h2 className="font-display text-3xl md:text-4xl text-center mb-3">{t('home.categories.heading')}</h2>
-                    <p className="text-center text-muted-foreground font-body mb-12">{t('home.categories.subtext')}</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {featuredCategories.map(cat => (
-                            <Link
-                                key={cat.id}
-                                href={route('shop')}
-                                className="group relative flex flex-col items-center gap-3 rounded-sm overflow-hidden bg-card border border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 p-1"
-                            >
-                                <div className="w-full aspect-square overflow-hidden rounded-sm bg-muted">
-                                    {cat.image_url
-                                        ? <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                        : <div className="w-full h-full flex items-center justify-center font-display text-2xl text-muted-foreground">{cat.name?.[0]}</div>
-                                    }
-                                </div>
-                                <span className="pb-3 text-center font-body text-sm font-medium text-foreground leading-tight px-2 line-clamp-2">{cat.name}</span>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
-
             {/* ── Departments ───────────────────────────────────── */}
-            {departments?.length > 0 && (
+            {showDepts && departments?.length > 0 && (
                 <section className="bg-secondary py-20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <SectionHeader

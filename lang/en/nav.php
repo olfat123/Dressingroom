@@ -18,4 +18,6 @@ return [
     'register' => 'Register',
     'blog' => 'Blog',
     'becomeVendor' => 'Become a Vendor',
+    'allDepartments' => 'All Departments',
+    'viewAll' => 'View All',
 ];

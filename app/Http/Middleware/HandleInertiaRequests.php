@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Services\CartService;
 use App\Models\Wishlist;
 use App\Models\Setting;
+use App\Models\Department;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 
@@ -122,6 +123,19 @@ class HandleInertiaRequests extends Middleware
             'availableLocales' => $availableLocales,
             'app_logo'         => $siteSettings['app_logo'] ?? '',
             'app_favicon'      => $siteSettings['app_favicon'] ?? '',
+            'navDepartments'   => fn () => Cache::remember('nav_departments', 60 * 60, function () {
+                return Department::where('active', true)
+                    ->orderBy('name')
+                    ->with(['categories' => fn ($q) => $q->where('active', true)->whereNull('parent_id')->orderBy('name')])
+                    ->get()
+                    ->map(fn ($d) => [
+                        'id'         => $d->id,
+                        'name'       => $d->name,
+                        'slug'       => $d->slug,
+                        'image_url'  => $d->image ? \Illuminate\Support\Facades\Storage::url($d->image) : null,
+                        'categories' => $d->categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
+                    ]);
+            }),
         ];
     }
 

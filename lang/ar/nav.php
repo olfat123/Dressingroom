@@ -18,4 +18,6 @@ return [
     'register' => 'إنشاء حساب',
     'blog' => 'المدونة',
     'becomeVendor' => 'كن بائعاً',
+    'allDepartments' => 'جميع الأقسام',
+    'viewAll' => 'عرض الكل',
 ];
