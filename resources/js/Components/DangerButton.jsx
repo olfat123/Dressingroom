@@ -8,7 +8,7 @@ export default function DangerButton({
         <button
             {...props}
             className={
-                `btn btn-error` + className
+                `border border-red-200 text-red-600 px-5 py-2 text-sm hover:bg-red-50 transition-colors disabled:opacity-50 ` + className
             }
             disabled={disabled}
         >

@@ -9,7 +9,7 @@ export default function SecondaryButton({
         <button
             {...props}
             type={type}
-            className={ `btn btn-outline` + className }
+            className={`border border-border px-5 py-2 text-sm hover:border-accent hover:text-accent transition-colors disabled:opacity-50 ` + className}
             disabled={disabled}
         >
             {children}

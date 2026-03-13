@@ -1,21 +1,19 @@
-import { XMarkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { X, Search } from 'lucide-react';
 import { useTrans } from '@/i18n';
 
-/** Reusable labelled wrapper */
 function FilterField({ label, children }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider text-base-content/40">{label}</span>
+            <span className="text-xs font-body font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
             {children}
         </div>
     );
 }
 
-/** Reusable select input */
 function FilterSelect({ value, onChange, children }) {
     return (
         <select
-            className="select select-bordered select-sm w-full bg-base-100"
+            className="w-full border border-border px-3 py-2 font-body text-sm bg-background focus:outline-none focus:border-accent rounded-sm"
             value={value}
             onChange={e => onChange(e.target.value)}
         >
@@ -24,10 +22,6 @@ function FilterSelect({ value, onChange, children }) {
     );
 }
 
-/**
- * ProductFilterPanel — pure presentational.
- * All state lives in the parent (Shop / Store/Show).
- */
 export default function ProductFilterPanel({
     search,        onSearchChange,
     departmentId,  onDepartmentChange,
@@ -45,14 +39,13 @@ export default function ProductFilterPanel({
 
     return (
         <div className="flex flex-col gap-5">
-
             {/* Search */}
             <FilterField label={t('filter.search')}>
                 <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-base-content/30 pointer-events-none" />
+                    <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                     <input
                         type="text"
-                        className="input input-bordered input-sm w-full pl-8 bg-base-100"
+                        className="w-full border border-border ps-8 pe-3 py-2 font-body text-sm bg-background focus:outline-none focus:border-accent rounded-sm"
                         placeholder={t('filter.search_placeholder')}
                         value={search}
                         onChange={e => onSearchChange(e.target.value)}
@@ -60,7 +53,7 @@ export default function ProductFilterPanel({
                 </div>
             </FilterField>
 
-            <div className="divider my-0" />
+            <div className="border-t border-border" />
 
             {/* Department */}
             <FilterField label={t('filter.department')}>
@@ -78,7 +71,7 @@ export default function ProductFilterPanel({
                 </FilterSelect>
             </FilterField>
 
-            {/* Store (only on Shop page) */}
+            {/* Store */}
             {stores.length > 0 && (
                 <FilterField label={t('filter.store')}>
                     <FilterSelect value={storeId} onChange={onStoreChange}>
@@ -88,14 +81,14 @@ export default function ProductFilterPanel({
                 </FilterField>
             )}
 
-            <div className="divider my-0" />
+            <div className="border-t border-border" />
 
             {/* Price Range */}
             <FilterField label={t('filter.price_range')}>
                 <div className="flex gap-2">
                     <input
                         type="number"
-                        className="input input-bordered input-sm w-full bg-base-100"
+                        className="w-full border border-border px-3 py-2 font-body text-sm bg-background focus:outline-none focus:border-accent rounded-sm"
                         placeholder={t('filter.min')}
                         min={0}
                         value={minPrice}
@@ -103,7 +96,7 @@ export default function ProductFilterPanel({
                     />
                     <input
                         type="number"
-                        className="input input-bordered input-sm w-full bg-base-100"
+                        className="w-full border border-border px-3 py-2 font-body text-sm bg-background focus:outline-none focus:border-accent rounded-sm"
                         placeholder={t('filter.max')}
                         min={0}
                         value={maxPrice}
@@ -115,15 +108,13 @@ export default function ProductFilterPanel({
             {/* Clear all */}
             {activeFilterCount > 0 && (
                 <>
-                    <div className="divider my-0" />
-                    <button onClick={onClearAll} className="btn btn-ghost btn-sm text-error gap-1.5 w-full">
-                        <XMarkIcon className="size-3.5" />
-                        {t('filter.clear_all')}
-                        <span className="badge badge-error badge-xs">{activeFilterCount}</span>
+                    <div className="border-t border-border" />
+                    <button onClick={onClearAll} className="flex items-center gap-1.5 text-sm font-body text-destructive hover:underline">
+                        <X className="w-3.5 h-3.5" />
+                        {t('shop.clear_filters')}
                     </button>
                 </>
             )}
         </div>
     );
 }
-

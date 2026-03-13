@@ -23,7 +23,7 @@ export default function StarRating({ value = 0, onChange, readonly = false, size
                     onMouseEnter={() => !readonly && setHovered(star)}
                     onMouseLeave={() => !readonly && setHovered(0)}
                     className={`${size} leading-none transition-all ${
-                        (hovered || value) >= star ? 'text-warning' : 'text-base-content/20'
+                        (hovered || value) >= star ? 'text-accent' : 'text-muted-foreground/30'
                     } ${!readonly ? 'cursor-pointer hover:scale-125' : 'cursor-default'}`}
                 >
                     ★

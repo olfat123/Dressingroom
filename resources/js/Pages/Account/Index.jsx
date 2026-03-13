@@ -4,17 +4,18 @@ import CurrencyFormatter from '@/Components/CurrencyFormatter';
 import ProductItem from '@/Components/App/ProductItem';
 import { useState } from 'react';
 import { useTrans, useLocale } from '@/i18n';
+import { ShoppingBag, Heart, MapPin, Pencil, Trash2, Plus, RefreshCw, X, ChevronDown } from 'lucide-react';
 
 const STATUS_COLORS = {
-    pending:    'badge-warning',
-    processing: 'badge-info',
-    paid:       'badge-info',
-    shipped:    'badge-primary',
-    delivered:  'badge-success',
-    completed:  'badge-success',
-    cancelled:  'badge-error',
-    refunded:   'badge-ghost',
-    failed:     'badge-error',
+    pending:    'bg-amber-100 text-amber-800',
+    processing: 'bg-blue-100 text-blue-800',
+    paid:       'bg-blue-100 text-blue-800',
+    shipped:    'bg-purple-100 text-purple-800',
+    delivered:  'bg-green-100 text-green-800',
+    completed:  'bg-green-100 text-green-800',
+    cancelled:  'bg-red-100 text-red-800',
+    refunded:   'bg-gray-100 text-gray-700',
+    failed:     'bg-red-100 text-red-800',
 };
 
 const CANCELLABLE_STATUSES = ['pending', 'processing'];
@@ -29,10 +30,12 @@ function OrdersTab({ orders }) {
     if (!orders.length) {
         return (
             <div className="text-center py-16">
-                <div className="text-6xl mb-4">📦</div>
-                <h3 className="text-xl font-semibold mb-2">{t('account.orders.empty_title')}</h3>
-                <p className="text-base-content/60 mb-6">{t('account.orders.empty_sub')}</p>
-                <Link href={route('shop')} className="btn btn-primary">{t('account.browse_shop')}</Link>
+                <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground/40 mb-4" />
+                <h3 className="font-display text-xl font-semibold mb-2">{t('account.orders.empty_title')}</h3>
+                <p className="text-muted-foreground mb-6">{t('account.orders.empty_sub')}</p>
+                <Link href={route('shop')} className="inline-block bg-primary text-primary-foreground px-6 py-2 text-sm tracking-wide hover:opacity-90 transition-opacity">
+                    {t('account.browse_shop')}
+                </Link>
             </div>
         );
     }
@@ -40,30 +43,23 @@ function OrdersTab({ orders }) {
     return (
         <div className="space-y-4">
             {orders.map((order) => (
-                <div key={order.id} className="card bg-base-100 border border-base-300 shadow-sm">
-                    {/* Order header */}
+                <div key={order.id} className="border border-border bg-background">
                     <div
-                        className="card-body cursor-pointer"
+                        className="p-4 cursor-pointer"
                         onClick={() => setExpanded(expanded === order.id ? null : order.id)}
                     >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
-                                <span className="font-bold text-base-content/50 text-sm">{t('account.orders.order_label')}</span>
-                                <span className="font-bold">#{order.id}</span>
-                                <span className={`badge badge-sm ${STATUS_COLORS[order.status] ?? 'badge-ghost'}`}>
+                                <span className="text-muted-foreground text-sm">{t('account.orders.order_label')}</span>
+                                <span className="font-semibold">#{order.id}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[order.status] ?? 'bg-gray-100 text-gray-700'}`}>
                                     {order.status}
                                 </span>
                             </div>
                             <div className="flex items-center gap-4">
-                                <span className="text-sm text-base-content/60">{order.created_at}</span>
+                                <span className="text-sm text-muted-foreground">{order.created_at}</span>
                                 <CurrencyFormatter amount={order.total_price} />
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className={`h-5 w-5 transition-transform ${expanded === order.id ? 'rotate-180' : ''}`}
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
+                                <ChevronDown className={`h-4 w-4 transition-transform ${expanded === order.id ? 'rotate-180' : ''}`} />
                             </div>
                         </div>
 
@@ -75,18 +71,18 @@ function OrdersTab({ orders }) {
                                         <img
                                             src={item.product.image_url}
                                             alt={itemTitle(item)}
-                                            className="w-12 h-12 rounded-lg object-cover border border-base-300"
+                                            className="w-12 h-12 object-cover border border-border"
                                         />
                                     ) : (
-                                        <div className="w-12 h-12 rounded-lg bg-base-200 flex items-center justify-center text-base-content/40 text-xs">img</div>
+                                        <div className="w-12 h-12 bg-muted flex items-center justify-center text-muted-foreground text-xs">img</div>
                                     )}
                                     {item.quantity > 1 && (
-                                        <span className="absolute -top-1 -right-1 badge badge-xs badge-primary">×{item.quantity}</span>
+                                        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">×{item.quantity}</span>
                                     )}
                                 </div>
                             ))}
                             {order.items.length > 4 && (
-                                <div className="w-12 h-12 rounded-lg bg-base-200 flex items-center justify-center text-sm font-semibold">
+                                <div className="w-12 h-12 bg-muted flex items-center justify-center text-sm font-semibold border border-border">
                                     +{order.items.length - 4}
                                 </div>
                             )}
@@ -95,27 +91,27 @@ function OrdersTab({ orders }) {
 
                     {/* Expandable details */}
                     {expanded === order.id && (
-                        <div className="border-t border-base-300 px-6 py-4 space-y-4">
+                        <div className="border-t border-border px-6 py-4 space-y-4">
                             {/* Items list */}
                             <div>
-                                <h4 className="font-semibold mb-3 text-sm uppercase tracking-wide text-base-content/60">{t('account.orders.items_heading')}</h4>
+                                <h4 className="font-semibold mb-3 text-xs uppercase tracking-widest text-muted-foreground">{t('account.orders.items_heading')}</h4>
                                 <div className="space-y-3">
                                     {order.items.map((item) => (
                                         <div key={item.id} className="flex items-center gap-3">
                                             {item.product?.image_url ? (
-                                                <img src={item.product.image_url} alt={itemTitle(item)} className="w-14 h-14 rounded-lg object-cover" />
+                                                <img src={item.product.image_url} alt={itemTitle(item)} className="w-14 h-14 object-cover" />
                                             ) : (
-                                                <div className="w-14 h-14 rounded-lg bg-base-200" />
+                                                <div className="w-14 h-14 bg-muted" />
                                             )}
                                             <div className="flex-1 min-w-0">
                                                 {item.product ? (
-                                                    <Link href={route('product.show', item.product.slug)} className="font-medium hover:underline truncate block">
+                                                    <Link href={route('product.show', item.product.slug)} className="font-medium hover:text-accent transition-colors truncate block">
                                                         {itemTitle(item)}
                                                     </Link>
                                                 ) : (
-                                                    <span className="font-medium text-base-content/50">{t('account.orders.product_removed')}</span>
+                                                    <span className="font-medium text-muted-foreground">{t('account.orders.product_removed')}</span>
                                                 )}
-                                                <span className="text-sm text-base-content/60">{t('account.orders.qty')} {item.quantity}</span>
+                                                <span className="text-sm text-muted-foreground">{t('account.orders.qty')} {item.quantity}</span>
                                             </div>
                                             <CurrencyFormatter amount={item.price * item.quantity} />
                                         </div>
@@ -126,7 +122,7 @@ function OrdersTab({ orders }) {
                             {/* Shipping info */}
                             {order.shipping_address && (
                                 <div>
-                                    <h4 className="font-semibold mb-1 text-sm uppercase tracking-wide text-base-content/60">{t('account.orders.shipped_to')}</h4>
+                                    <h4 className="font-semibold mb-1 text-xs uppercase tracking-widest text-muted-foreground">{t('account.orders.shipped_to')}</h4>
                                     <p className="text-sm">
                                         {order.shipping_name} — {order.shipping_address}, {order.shipping_city}, {order.shipping_country}
                                     </p>
@@ -134,8 +130,8 @@ function OrdersTab({ orders }) {
                             )}
 
                             {/* Payment */}
-                            <div className="flex items-center justify-between pt-2 border-t border-base-300">
-                                <span className="text-sm text-base-content/60 capitalize">
+                            <div className="flex items-center justify-between pt-2 border-t border-border">
+                                <span className="text-sm text-muted-foreground capitalize">
                                     {t('account.orders.payment')}: {order.payment_method ?? 'N/A'}
                                 </span>
                                 <div className="flex items-center gap-2 font-semibold">
@@ -145,29 +141,25 @@ function OrdersTab({ orders }) {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-wrap gap-2 pt-2 border-t border-base-300">
+                            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
                                 <button
-                                    className="btn btn-sm btn-outline btn-primary gap-2"
+                                    className="flex items-center gap-2 border border-border px-3 py-1.5 text-sm hover:border-accent hover:text-accent transition-colors"
                                     onClick={() => router.post(route('account.orders.reorder', order.id))}
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
+                                    <RefreshCw className="h-4 w-4" />
                                     Reorder
                                 </button>
 
                                 {CANCELLABLE_STATUSES.includes(order.status) && (
                                     <button
-                                        className="btn btn-sm btn-outline btn-error gap-2"
+                                        className="flex items-center gap-2 border border-red-200 text-red-600 px-3 py-1.5 text-sm hover:bg-red-50 transition-colors"
                                         onClick={() => {
                                             if (confirm(t('account.orders.cancel_confirm', { id: order.id }))) {
                                                 router.post(route('account.orders.cancel', order.id));
                                             }
                                         }}
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
+                                        <X className="h-4 w-4" />
                                         {t('account.orders.cancel_btn')}
                                     </button>
                                 )}
@@ -186,10 +178,12 @@ function FavouritesTab({ wishlist }) {
     if (!wishlist.length) {
         return (
             <div className="text-center py-16">
-                <div className="text-6xl mb-4">🤍</div>
-                <h3 className="text-xl font-semibold mb-2">{t('account.favourites.empty_title')}</h3>
-                <p className="text-base-content/60 mb-6">{t('account.favourites.empty_sub')}</p>
-                <Link href={route('shop')} className="btn btn-primary">{t('account.browse_shop')}</Link>
+                <Heart className="mx-auto h-16 w-16 text-muted-foreground/40 mb-4" />
+                <h3 className="font-display text-xl font-semibold mb-2">{t('account.favourites.empty_title')}</h3>
+                <p className="text-muted-foreground mb-6">{t('account.favourites.empty_sub')}</p>
+                <Link href={route('shop')} className="inline-block bg-primary text-primary-foreground px-6 py-2 text-sm tracking-wide hover:opacity-90 transition-opacity">
+                    {t('account.browse_shop')}
+                </Link>
             </div>
         );
     }
@@ -260,52 +254,55 @@ function AddressesTab({ addresses }) {
         defaultForm.post(route('account.addresses.default', id), { preserveScroll: true });
     };
 
+    const fieldClass = "w-full border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors";
+    const labelClass = "block text-sm font-medium text-foreground mb-1";
+
     const AddressForm = ({ form, onSubmit, onCancel, submitLabel }) => (
-        <form onSubmit={onSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-base-200 rounded-xl">
-            <div className="form-control">
-                <label className="label"><span className="label-text">{t('checkout.full_name')} *</span></label>
-                <input className="input input-bordered" value={form.data.name} onChange={e => form.setData('name', e.target.value)} required />
-                {form.errors.name && <span className="text-error text-xs mt-1">{form.errors.name}</span>}
+        <form onSubmit={onSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/30 border border-border">
+            <div>
+                <label className={labelClass}>{t('checkout.full_name')} *</label>
+                <input className={fieldClass} value={form.data.name} onChange={e => form.setData('name', e.target.value)} required />
+                {form.errors.name && <span className="text-red-600 text-xs mt-1 block">{form.errors.name}</span>}
             </div>
-            <div className="form-control">
-                <label className="label"><span className="label-text">{t('checkout.phone')}</span></label>
-                <input className="input input-bordered" value={form.data.phone} onChange={e => form.setData('phone', e.target.value)} />
+            <div>
+                <label className={labelClass}>{t('checkout.phone')}</label>
+                <input className={fieldClass} value={form.data.phone} onChange={e => form.setData('phone', e.target.value)} />
             </div>
-            <div className="form-control sm:col-span-2">
-                <label className="label"><span className="label-text">{t('checkout.street_address')} *</span></label>
-                <input className="input input-bordered" value={form.data.address} onChange={e => form.setData('address', e.target.value)} required />
-                {form.errors.address && <span className="text-error text-xs mt-1">{form.errors.address}</span>}
+            <div className="sm:col-span-2">
+                <label className={labelClass}>{t('checkout.street_address')} *</label>
+                <input className={fieldClass} value={form.data.address} onChange={e => form.setData('address', e.target.value)} required />
+                {form.errors.address && <span className="text-red-600 text-xs mt-1 block">{form.errors.address}</span>}
             </div>
-            <div className="form-control">
-                <label className="label"><span className="label-text">{t('checkout.city')} *</span></label>
-                <input className="input input-bordered" value={form.data.city} onChange={e => form.setData('city', e.target.value)} required />
-                {form.errors.city && <span className="text-error text-xs mt-1">{form.errors.city}</span>}
+            <div>
+                <label className={labelClass}>{t('checkout.city')} *</label>
+                <input className={fieldClass} value={form.data.city} onChange={e => form.setData('city', e.target.value)} required />
+                {form.errors.city && <span className="text-red-600 text-xs mt-1 block">{form.errors.city}</span>}
             </div>
-            <div className="form-control">
-                <label className="label"><span className="label-text">{t('checkout.state')}</span></label>
-                <input className="input input-bordered" value={form.data.state} onChange={e => form.setData('state', e.target.value)} />
+            <div>
+                <label className={labelClass}>{t('checkout.state')}</label>
+                <input className={fieldClass} value={form.data.state} onChange={e => form.setData('state', e.target.value)} />
             </div>
-            <div className="form-control">
-                <label className="label"><span className="label-text">{t('checkout.country')} *</span></label>
-                <input className="input input-bordered" value={form.data.country} onChange={e => form.setData('country', e.target.value)} required />
+            <div>
+                <label className={labelClass}>{t('checkout.country')} *</label>
+                <input className={fieldClass} value={form.data.country} onChange={e => form.setData('country', e.target.value)} required />
             </div>
-            <div className="form-control">
-                <label className="label"><span className="label-text">{t('checkout.zip')}</span></label>
-                <input className="input input-bordered" value={form.data.zip} onChange={e => form.setData('zip', e.target.value)} />
+            <div>
+                <label className={labelClass}>{t('checkout.zip')}</label>
+                <input className={fieldClass} value={form.data.zip} onChange={e => form.setData('zip', e.target.value)} />
             </div>
-            <div className="form-control sm:col-span-2 flex-row items-center gap-2">
+            <div className="sm:col-span-2 flex items-center gap-2">
                 <input
                     type="checkbox"
-                    className="checkbox checkbox-primary"
+                    className="accent-[hsl(var(--accent))] w-4 h-4"
                     checked={form.data.is_default}
                     onChange={e => form.setData('is_default', e.target.checked)}
                     id={`default-${submitLabel}`}
                 />
-                <label htmlFor={`default-${submitLabel}`} className="label-text cursor-pointer">{t('account.addresses.set_default_label')}</label>
+                <label htmlFor={`default-${submitLabel}`} className="text-sm cursor-pointer">{t('account.addresses.set_default_label')}</label>
             </div>
             <div className="sm:col-span-2 flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={form.processing}>{submitLabel}</button>
-                <button type="button" className="btn btn-ghost" onClick={onCancel}>{t('account.addresses.cancel')}</button>
+                <button type="submit" className="bg-primary text-primary-foreground px-5 py-2 text-sm hover:opacity-90 transition-opacity disabled:opacity-50" disabled={form.processing}>{submitLabel}</button>
+                <button type="button" className="border border-border px-5 py-2 text-sm hover:border-accent hover:text-accent transition-colors" onClick={onCancel}>{t('account.addresses.cancel')}</button>
             </div>
         </form>
     );
@@ -314,18 +311,18 @@ function AddressesTab({ addresses }) {
         <div className="space-y-4">
             {/* Add new address button */}
             {!showForm && (
-                <button onClick={() => setShowForm(true)} className="btn btn-outline btn-primary gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                <button onClick={() => setShowForm(true)} className="flex items-center gap-2 border border-border px-4 py-2 text-sm hover:border-accent hover:text-accent transition-colors">
+                    <Plus className="h-5 w-5" />
                     {t('account.addresses.add_new')}
                 </button>
             )}
 
             {showForm && (
-                <div className="card bg-base-100 border border-base-300 shadow-sm">
-                    <div className="card-body">
-                        <h3 className="card-title text-base">{t('account.addresses.new_address')}</h3>
+                <div className="border border-border bg-background">
+                    <div className="p-4 border-b border-border">
+                        <h3 className="font-display text-base font-semibold">{t('account.addresses.new_address')}</h3>
+                    </div>
+                    <div className="p-4">
                         <AddressForm
                             form={createForm}
                             onSubmit={submitCreate}
@@ -339,17 +336,17 @@ function AddressesTab({ addresses }) {
             {/* Address list */}
             {!addresses.length && !showForm && (
                 <div className="text-center py-16">
-                    <div className="text-6xl mb-4">📍</div>
-                    <h3 className="text-xl font-semibold mb-2">{t('account.addresses.empty_title')}</h3>
-                    <p className="text-base-content/60">{t('account.addresses.empty_sub')}</p>
+                    <MapPin className="mx-auto h-16 w-16 text-muted-foreground/40 mb-4" />
+                    <h3 className="font-display text-xl font-semibold mb-2">{t('account.addresses.empty_title')}</h3>
+                    <p className="text-muted-foreground">{t('account.addresses.empty_sub')}</p>
                 </div>
             )}
 
             {addresses.map((addr) => (
-                <div key={addr.id} className="card bg-base-100 border border-base-300 shadow-sm">
+                <div key={addr.id} className="border border-border bg-background">
                     {editingId === addr.id ? (
-                        <div className="card-body">
-                            <h3 className="card-title text-base">{t('account.addresses.edit_address')}</h3>
+                        <div className="p-4">
+                            <h3 className="font-display text-base font-semibold mb-3">{t('account.addresses.edit_address')}</h3>
                             <AddressForm
                                 form={editForm}
                                 onSubmit={(e) => submitEdit(e, addr.id)}
@@ -358,36 +355,32 @@ function AddressesTab({ addresses }) {
                             />
                         </div>
                     ) : (
-                        <div className="card-body">
+                        <div className="p-4">
                             <div className="flex items-start justify-between gap-3">
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className="font-semibold">{addr.name}</span>
-                                        {addr.is_default && <span className="badge badge-primary badge-sm">{t('account.addresses.default_badge')}</span>}
+                                        {addr.is_default && <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary font-medium">{t('account.addresses.default_badge')}</span>}
                                     </div>
-                                    {addr.phone && <p className="text-sm text-base-content/70">{addr.phone}</p>}
+                                    {addr.phone && <p className="text-sm text-muted-foreground">{addr.phone}</p>}
                                     <p className="text-sm">{addr.address}</p>
                                     <p className="text-sm">{addr.city}{addr.state ? `, ${addr.state}` : ''}, {addr.country}{addr.zip ? ` ${addr.zip}` : ''}</p>
                                 </div>
-                                <div className="flex gap-2 flex-shrink-0">
+                                <div className="flex gap-1 flex-shrink-0">
                                     {!addr.is_default && (
                                         <button
                                             onClick={() => setDefault(addr.id)}
-                                            className="btn btn-xs btn-ghost"
+                                            className="text-xs px-2 py-1 border border-border hover:border-accent hover:text-accent transition-colors"
                                             title={t('account.addresses.set_default')}
                                         >
                                             {t('account.addresses.set_default')}
                                         </button>
                                     )}
-                                    <button onClick={() => startEdit(addr)} className="btn btn-xs btn-ghost btn-square" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
+                                    <button onClick={() => startEdit(addr)} className="p-1.5 border border-border hover:border-accent hover:text-accent transition-colors" title="Edit">
+                                        <Pencil className="h-4 w-4" />
                                     </button>
-                                    <button onClick={() => handleDelete(addr.id)} className="btn btn-xs btn-ghost btn-square text-error" title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
+                                    <button onClick={() => handleDelete(addr.id)} className="p-1.5 border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors" title="Delete">
+                                        <Trash2 className="h-4 w-4" />
                                     </button>
                                 </div>
                             </div>
@@ -408,37 +401,9 @@ export default function AccountIndex({ orders, wishlist, addresses }) {
     const [activeTab, setActiveTab] = useState('orders');
 
     const tabs = [
-        {
-            key: 'orders',
-            label: t('account.tab_orders'),
-            count: orders.length,
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-            ),
-        },
-        {
-            key: 'favourites',
-            label: t('account.tab_favourites'),
-            count: wishlist.length,
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-            ),
-        },
-        {
-            key: 'addresses',
-            label: t('account.tab_addresses'),
-            count: addresses.length,
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            ),
-        },
+        { key: 'orders',     label: t('account.tab_orders'),     count: orders.length,    icon: <ShoppingBag className="h-4 w-4" /> },
+        { key: 'favourites', label: t('account.tab_favourites'), count: wishlist.length,  icon: <Heart className="h-4 w-4" /> },
+        { key: 'addresses',  label: t('account.tab_addresses'),  count: addresses.length, icon: <MapPin className="h-4 w-4" /> },
     ];
 
     // Avatar initials
@@ -456,41 +421,40 @@ export default function AccountIndex({ orders, wishlist, addresses }) {
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Sidebar */}
-                    <aside className="lg:w-72 flex-shrink-0">
+                    <aside className="lg:w-64 flex-shrink-0">
                         {/* Profile card */}
-                        <div className="card bg-base-100 shadow-md mb-4">
-                            <div className="card-body items-center text-center py-8">
-                                <div className="avatar placeholder mb-3">
-                                    <div className="bg-primary text-primary-content rounded-full w-20 text-2xl font-bold flex items-center justify-center">
-                                        <span>{initials}</span>
-                                    </div>
-                                </div>
-                                <h2 className="card-title text-lg">{user.name}</h2>
-                                <p className="text-sm text-base-content/60">{user.email}</p>
-                                <Link href={route('profile.edit')} className="btn btn-sm btn-ghost mt-2">
-                                    {t('account.edit_profile')}
-                                </Link>
+                        <div className="border border-border bg-background p-6 text-center mb-4">
+                            <div className="w-20 h-20 rounded-full bg-primary text-primary-foreground text-2xl font-bold flex items-center justify-center mx-auto mb-3">
+                                {initials}
                             </div>
+                            <h2 className="font-display text-lg font-semibold">{user.name}</h2>
+                            <p className="text-sm text-muted-foreground mt-0.5">{user.email}</p>
+                            <Link href={route('profile.edit')} className="inline-block mt-3 text-sm border border-border px-3 py-1 hover:border-accent hover:text-accent transition-colors">
+                                {t('account.edit_profile')}
+                            </Link>
                         </div>
 
                         {/* Nav */}
-                        <div className="card bg-base-100 shadow-md">
-                            <ul className="menu p-2">
-                                {tabs.map((tab) => (
-                                    <li key={tab.key}>
-                                        <button
-                                            onClick={() => setActiveTab(tab.key)}
-                                            className={`flex items-center gap-3 ${activeTab === tab.key ? 'active' : ''}`}
-                                        >
-                                            {tab.icon}
-                                            <span className="flex-1 text-left">{tab.label}</span>
-                                            {tab.count > 0 && (
-                                                <span className="badge badge-sm badge-primary">{tab.count}</span>
-                                            )}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
+                        <div className="border border-border bg-background divide-y divide-border">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveTab(tab.key)}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-colors ${
+                                        activeTab === tab.key
+                                            ? 'bg-primary/5 text-accent font-medium border-l-2 border-accent'
+                                            : 'hover:bg-muted/50 text-foreground'
+                                    }`}
+                                >
+                                    {tab.icon}
+                                    <span className="flex-1">{tab.label}</span>
+                                    {tab.count > 0 && (
+                                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                                            {tab.count}
+                                        </span>
+                                    )}
+                                </button>
+                            ))}
                         </div>
                     </aside>
 
@@ -498,16 +462,20 @@ export default function AccountIndex({ orders, wishlist, addresses }) {
                     <main className="flex-1 min-w-0">
                         {/* Tab header */}
                         <div className="flex items-center justify-between mb-6">
-                            <h1 className="text-2xl font-bold">
-                                {tabs.find((t) => t.key === activeTab)?.label}
+                            <h1 className="font-display text-2xl font-semibold">
+                                {tabs.find((tab) => tab.key === activeTab)?.label}
                             </h1>
                             {/* Mobile tab switcher */}
-                            <div className="tabs tabs-boxed lg:hidden">
+                            <div className="flex gap-1 lg:hidden">
                                 {tabs.map((tab) => (
                                     <button
                                         key={tab.key}
                                         onClick={() => setActiveTab(tab.key)}
-                                        className={`tab ${activeTab === tab.key ? 'tab-active' : ''}`}
+                                        className={`p-2 border transition-colors ${
+                                            activeTab === tab.key
+                                                ? 'border-accent text-accent'
+                                                : 'border-border text-muted-foreground hover:border-accent'
+                                        }`}
                                     >
                                         {tab.icon}
                                     </button>

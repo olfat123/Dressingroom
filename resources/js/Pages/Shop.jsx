@@ -4,13 +4,11 @@ import { Head, Link, router } from '@inertiajs/react';
 import ProductItem from '@/Components/App/ProductItem';
 import ProductFilterPanel from '@/Components/App/ProductFilterPanel';
 import Pagination from '@/Components/App/Pagination';
-import { AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { SlidersHorizontal, X, ShoppingBag } from 'lucide-react';
 import { useTrans } from '@/i18n';
 import { useDebounce } from '@/hooks/useDebounce';
 
 export default function Shop({ products, departments = [], stores = [], filters }) {
-    // PHP serializes an empty array as `[]` in JSON, not `{}`, so guard against
-    // filters being a JS array or null/undefined before reading its properties.
     const f = (filters && !Array.isArray(filters)) ? filters : {};
     const t = useTrans();
 
@@ -22,6 +20,7 @@ export default function Shop({ products, departments = [], stores = [], filters 
         { value: 'name_desc',  label: t('shop.sort.name_desc') },
         { value: 'top_rated',  label: t('shop.sort.top_rated') },
     ];
+
     const [search, setSearch]             = useState(f.search        ?? '');
     const [departmentId, setDepartmentId] = useState(f.department_id ?? '');
     const [categoryId, setCategoryId]     = useState(f.category_id   ?? '');
@@ -37,7 +36,6 @@ export default function Shop({ products, departments = [], stores = [], filters 
 
     const isFirstRender = useRef(true);
 
-    // Derive categories from the selected department
     const categories = departmentId
         ? (departments.find(d => String(d.id) === String(departmentId))?.categories ?? [])
         : departments.flatMap(d => d.categories);
@@ -59,7 +57,7 @@ export default function Shop({ products, departments = [], stores = [], filters 
 
     const handleDepartmentChange = (val) => {
         setDepartmentId(val);
-        setCategoryId(''); // reset category when department changes
+        setCategoryId('');
     };
 
     const activeFilterCount = [
@@ -71,7 +69,6 @@ export default function Shop({ products, departments = [], stores = [], filters 
         setStoreId(''); setMinPrice(''); setMaxPrice(''); setSort('newest');
     };
 
-    /** Shared props forwarded to the filter panel */
     const filterPanelProps = {
         search,        onSearchChange:     setSearch,
         departmentId,  onDepartmentChange: handleDepartmentChange,
@@ -88,55 +85,29 @@ export default function Shop({ products, departments = [], stores = [], filters 
 
     return (
         <AuthenticatedLayout>
-            <Head title="Shop" />
+            <Head title={t('shop.heading')} />
 
-            {/* Page header */}
-            <div className="bg-base-200 border-b border-base-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <h1 className="text-3xl font-bold text-base-content">{t('shop.heading')}</h1>
-                        <p className="mt-1 text-base-content/60">
-                            {products.meta?.total
-                                ? t('shop.products_found', { count: products.meta.total })
-                                : t('shop.browse_all')}
-                        </p>
-                    </div>
-
-                    {/* Sort + mobile filter toggle */}
-                    <div className="flex items-center gap-3">
-                        <select
-                            className="select select-bordered select-sm"
-                            value={sort}
-                            onChange={e => setSort(e.target.value)}
-                        >
-                            {SORT_OPTIONS.map(o => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
-                        </select>
-
-                        <button
-                            className="btn btn-outline btn-sm lg:hidden flex items-center gap-1"
-                            onClick={() => setSidebarOpen(true)}
-                        >
-                            <AdjustmentsHorizontalIcon className="size-4" />
-                            {t('shop.filters')}
-                            {activeFilterCount > 0 && (
-                                <span className="badge badge-primary badge-xs ml-1">{activeFilterCount}</span>
-                            )}
-                        </button>
-                    </div>
+            {/* Page Header */}
+            <div className="bg-secondary border-b border-border">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    <h1 className="font-display text-4xl">{t('shop.heading')}</h1>
+                    <p className="mt-2 text-muted-foreground font-body">
+                        {products.meta?.total
+                            ? t('shop.products_found', { count: products.meta.total })
+                            : t('shop.browse_all')}
+                    </p>
                 </div>
             </div>
 
             {/* Mobile filter drawer */}
             {sidebarOpen && (
                 <div className="fixed inset-0 z-50 flex lg:hidden">
-                    <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
-                    <div className="relative ml-auto w-72 h-full bg-base-100 shadow-xl overflow-y-auto p-6 flex flex-col gap-4">
+                    <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+                    <div className="relative ms-auto w-72 h-full bg-card shadow-xl overflow-y-auto p-6 flex flex-col gap-4">
                         <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-lg font-bold">{t('shop.filters')}</h2>
+                            <h2 className="font-display text-xl">{t('shop.filters')}</h2>
                             <button onClick={() => setSidebarOpen(false)}>
-                                <XMarkIcon className="size-5" />
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
                         <ProductFilterPanel {...filterPanelProps} />
@@ -145,47 +116,63 @@ export default function Shop({ products, departments = [], stores = [], filters 
             )}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex gap-8">
-
                 {/* Desktop sidebar */}
                 <aside className="hidden lg:block w-64 flex-shrink-0">
-                    <div className="card bg-base-100 shadow-sm border border-base-300 p-5 sticky top-6">
+                    <div className="bg-card border border-border/50 p-5 sticky top-24 rounded-sm">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-base">{t('shop.filters')}</h2>
+                            <h2 className="font-display text-lg">{t('shop.filters')}</h2>
                             {activeFilterCount > 0 && (
-                                <span className="badge badge-primary badge-sm">{activeFilterCount} {t('shop.active')}</span>
+                                <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 font-body rounded-sm">{activeFilterCount}</span>
                             )}
                         </div>
                         <ProductFilterPanel {...filterPanelProps} />
                     </div>
                 </aside>
 
-                {/* Products grid */}
+                {/* Products */}
                 <div className="flex-1 min-w-0">
-                    {products.data.length === 0 ? (
-                        <div className="text-center py-20 text-base-content/50">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7H4a1 1 0 00-1 1v10a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z" />
-                            </svg>
-                            <p className="text-xl font-medium">{t('shop.no_products')}</p>
+                    {/* Sort + mobile toggle bar */}
+                    <div className="flex items-center justify-between mb-6">
+                        <button
+                            className="flex items-center gap-2 border border-border px-4 py-2 font-body text-sm lg:hidden hover:border-accent transition-colors"
+                            onClick={() => setSidebarOpen(true)}
+                        >
+                            <SlidersHorizontal className="w-4 h-4" />
+                            {t('shop.filters')}
                             {activeFilterCount > 0 && (
-                                <button onClick={clearAll} className="btn btn-ghost btn-sm mt-3 text-primary">
+                                <span className="w-4 h-4 rounded-full bg-accent text-accent-foreground text-[10px] flex items-center justify-center">{activeFilterCount}</span>
+                            )}
+                        </button>
+                        <div className="flex items-center gap-2 ms-auto">
+                            <span className="text-sm font-body text-muted-foreground hidden sm:block">{t('shop.sort.label') || 'Sort:'}</span>
+                            <select
+                                className="border border-border px-3 py-2 font-body text-sm bg-background focus:outline-none focus:border-accent rounded-sm"
+                                value={sort}
+                                onChange={e => setSort(e.target.value)}
+                            >
+                                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    {products.data.length === 0 ? (
+                        <div className="text-center py-20">
+                            <p className="font-display text-2xl text-muted-foreground mb-4">{t('shop.no_products')}</p>
+                            {activeFilterCount > 0 && (
+                                <button onClick={clearAll} className="text-sm font-body text-accent hover:underline">
                                     {t('shop.clear_filters')}
                                 </button>
                             )}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                            {products.data.map(product => (
-                                <ProductItem product={product} key={product.id} />
-                            ))}
+                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {products.data.map(product => <ProductItem product={product} key={product.id} />)}
                         </div>
                     )}
 
-                    {/* Pagination */}
                     <Pagination meta={products.meta} />
                 </div>
             </div>
         </AuthenticatedLayout>
     );
 }
-

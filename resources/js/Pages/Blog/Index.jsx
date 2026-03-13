@@ -2,47 +2,46 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useTrans, useLocale } from '@/i18n';
 import Pagination from '@/Components/App/Pagination';
+import { ArrowRight, FileText } from 'lucide-react';
 
 function PostCard({ post }) {
     const t = useTrans();
     const locale = useLocale();
 
-    const title      = locale === 'ar' && post.title_ar   ? post.title_ar   : post.title;
-    const excerpt    = locale === 'ar' && post.excerpt_ar ? post.excerpt_ar : post.excerpt;
-    const catName    = post.category
+    const title   = locale === 'ar' && post.title_ar   ? post.title_ar   : post.title;
+    const excerpt = locale === 'ar' && post.excerpt_ar ? post.excerpt_ar : post.excerpt;
+    const catName = post.category
         ? (locale === 'ar' && post.category.name_ar ? post.category.name_ar : post.category.name)
         : null;
 
     return (
-        <article className="card bg-base-100 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden">
-            {post.cover_thumb ? (
-                <figure className="relative overflow-hidden h-48">
+        <article className="group border border-border bg-background flex flex-col overflow-hidden hover:border-accent/50 transition-colors">
+            <div className="relative overflow-hidden aspect-[16/9]">
+                {post.cover_thumb ? (
                     <img
                         src={post.cover_thumb}
                         alt={title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                </figure>
-            ) : (
-                <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-base-content/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-            )}
+                ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <FileText className="w-10 h-10 text-foreground/20" />
+                    </div>
+                )}
+            </div>
 
-            <div className="card-body flex-1 flex flex-col gap-3">
-                <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-col flex-1 gap-3 p-5">
+                <div className="flex items-center gap-3 flex-wrap">
                     {catName && (
                         <button
                             onClick={() => router.get(route('blog.index'), { category: post.category.slug })}
-                            className="badge badge-primary badge-outline text-xs cursor-pointer hover:badge-primary"
+                            className="font-body text-xs uppercase tracking-widest text-accent hover:underline cursor-pointer"
                         >
                             {catName}
                         </button>
                     )}
                     {post.published_at && (
-                        <p className="text-xs text-base-content/50 uppercase tracking-wider">
+                        <p className="font-body text-xs text-foreground/40 uppercase tracking-wider">
                             {new Date(post.published_at).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
                                 year: 'numeric', month: 'long', day: 'numeric',
                             })}
@@ -50,24 +49,22 @@ function PostCard({ post }) {
                     )}
                 </div>
 
-                <h2 className="card-title text-lg font-bold leading-snug line-clamp-2">{title}</h2>
+                <h2 className="font-display text-xl leading-snug line-clamp-2 group-hover:text-accent transition-colors">{title}</h2>
 
                 {excerpt && (
-                    <p className="text-base-content/60 text-sm leading-relaxed line-clamp-3">{excerpt}</p>
+                    <p className="font-body text-foreground/60 text-sm leading-relaxed line-clamp-3">{excerpt}</p>
                 )}
 
                 {post.author && (
-                    <p className="text-xs text-base-content/40 mt-auto">{t('blog.by', { author: post.author })}</p>
+                    <p className="font-body text-xs text-foreground/40 mt-auto">{t('blog.by', { author: post.author })}</p>
                 )}
 
-                <div className="card-actions mt-2">
-                    <Link href={route('blog.show', post.slug)} className="btn btn-primary btn-sm gap-1">
-                        {t('blog.read_more')}
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </Link>
-                </div>
+                <Link
+                    href={route('blog.show', post.slug)}
+                    className="inline-flex items-center gap-2 font-body text-sm uppercase tracking-widest mt-2 hover-gold-underline w-fit"
+                >
+                    {t('blog.read_more')} <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
             </div>
         </article>
     );
@@ -94,35 +91,29 @@ export default function BlogIndex({ posts, categories, activeCategory, banner })
 
             {/* Hero banner */}
             <section
-                className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-24 text-center"
+                className="relative overflow-hidden bg-primary py-24 text-center"
                 style={bannerImage ? { backgroundImage: `url(${bannerImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
             >
-                {!bannerImage && (
-                    <>
-                        <div className="pointer-events-none absolute -top-24 -left-24 h-[400px] w-[400px] rounded-full bg-primary/20 blur-3xl" />
-                        <div className="pointer-events-none absolute -bottom-24 -right-24 h-[350px] w-[350px] rounded-full bg-secondary/20 blur-3xl" />
-                    </>
-                )}
-                {bannerImage && <div className="absolute inset-0 bg-slate-900/60" />}
-                <div className="relative max-w-3xl mx-auto px-4">
-                    <span className="inline-block px-4 py-1 rounded-full bg-primary/20 text-primary text-xs font-semibold uppercase tracking-widest mb-4">
-                        {t('blog.badge')}
+                {bannerImage && <div className="absolute inset-0 bg-primary/70" />}
+                <div className="relative container mx-auto px-4 max-w-3xl">
+                    <span className="font-body text-xs uppercase tracking-widest text-primary-foreground/60 mb-4 block">
+                        {t('blog.badge') || 'Journal'}
                     </span>
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-white">{bannerTitle}</h1>
+                    <h1 className="font-display text-5xl md:text-7xl text-primary-foreground">{bannerTitle}</h1>
                     {bannerSubtitle && (
-                        <p className="mt-4 text-slate-400 text-lg max-w-xl mx-auto">{bannerSubtitle}</p>
+                        <p className="font-body mt-4 text-primary-foreground/60 text-base max-w-xl mx-auto">{bannerSubtitle}</p>
                     )}
                 </div>
             </section>
 
             {/* Category filter tabs */}
             {categories?.length > 0 && (
-                <div className="bg-base-200 border-b border-base-300 sticky top-0 z-10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="bg-background border-b border-border sticky top-0 z-10">
+                    <div className="container mx-auto px-4">
                         <div className="flex gap-1 overflow-x-auto py-3 scrollbar-none">
                             <button
                                 onClick={() => filterCategory(null)}
-                                className={`btn btn-sm flex-shrink-0 ${!activeCategory ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`px-4 py-1.5 font-body text-xs uppercase tracking-widest flex-shrink-0 border transition-colors rounded-sm ${!activeCategory ? 'border-accent bg-accent/10 text-foreground' : 'border-transparent text-foreground/50 hover:text-foreground'}`}
                             >
                                 {t('blog.all_categories')}
                             </button>
@@ -132,7 +123,7 @@ export default function BlogIndex({ posts, categories, activeCategory, banner })
                                     <button
                                         key={cat.id}
                                         onClick={() => filterCategory(cat.slug)}
-                                        className={`btn btn-sm flex-shrink-0 ${activeCategory === cat.slug ? 'btn-primary' : 'btn-ghost'}`}
+                                        className={`px-4 py-1.5 font-body text-xs uppercase tracking-widest flex-shrink-0 border transition-colors rounded-sm ${activeCategory === cat.slug ? 'border-accent bg-accent/10 text-foreground' : 'border-transparent text-foreground/50 hover:text-foreground'}`}
                                     >
                                         {label}
                                     </button>
@@ -144,22 +135,19 @@ export default function BlogIndex({ posts, categories, activeCategory, banner })
             )}
 
             {/* Posts grid */}
-            <section className="py-16 bg-base-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-16 bg-cream">
+                <div className="container mx-auto px-4">
                     {items.length === 0 ? (
-                        <div className="text-center py-24 text-base-content/40">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p className="text-xl">{t('blog.no_posts')}</p>
+                        <div className="text-center py-24">
+                            <FileText className="w-16 h-16 mx-auto mb-4 text-foreground/20" />
+                            <p className="font-display text-xl text-foreground/40">{t('blog.no_posts')}</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {items.map(post => <PostCard key={post.id} post={post} />)}
                         </div>
                     )}
 
-                    {/* Pagination */}
                     <Pagination meta={meta} className="mt-12" />
                 </div>
             </section>

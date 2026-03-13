@@ -1,9 +1,5 @@
 import { Link } from '@inertiajs/react';
 
-/**
- * Renders page-number pagination links from an Inertia paginator meta object.
- * Renders nothing when there is only one page.
- */
 export default function Pagination({ meta, className = '' }) {
     if (!meta || meta.last_page <= 1) return null;
 
@@ -13,8 +9,12 @@ export default function Pagination({ meta, className = '' }) {
                 <Link
                     key={i}
                     href={link.url ?? '#'}
-                    className={`btn btn-sm ${link.active ? 'btn-primary' : 'btn-ghost'} ${
-                        !link.url ? 'btn-disabled opacity-40' : ''
+                    className={`inline-flex items-center justify-center w-9 h-9 text-sm font-body border transition-colors rounded-sm ${
+                        link.active
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : !link.url
+                            ? 'text-muted-foreground border-border opacity-40 pointer-events-none'
+                            : 'border-border hover:border-accent hover:text-accent'
                     }`}
                     dangerouslySetInnerHTML={{ __html: link.label }}
                 />
@@ -22,3 +22,4 @@ export default function Pagination({ meta, className = '' }) {
         </div>
     );
 }
+

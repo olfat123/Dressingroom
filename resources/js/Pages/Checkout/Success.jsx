@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircle2 } from 'lucide-react';
 import { useTrans } from '@/i18n';
 
 export default function Success({ message }) {
@@ -10,13 +10,18 @@ export default function Success({ message }) {
         <AuthenticatedLayout>
             <Head title={t('checkout.success.title')} />
 
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-                <CheckCircleIcon className="size-20 text-green-500 mb-4" />
-                <h1 className="text-3xl font-bold mb-2">{t('checkout.success.heading')}</h1>
-                <p className="text-gray-600 dark:text-gray-400 max-w-md mb-6">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6 py-16">
+                <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-6">
+                    <CheckCircle2 className="w-10 h-10 text-green-500" />
+                </div>
+                <h1 className="font-display text-4xl md:text-5xl text-foreground mb-4">{t('checkout.success.heading')}</h1>
+                <p className="font-body text-foreground/60 max-w-md mb-8">
                     {message || t('checkout.success.message')}
                 </p>
-                <Link href={route('home')} className="btn btn-primary rounded-full px-8">
+                <Link
+                    href={route('home')}
+                    className="bg-primary text-primary-foreground px-10 py-3 font-body text-sm uppercase tracking-widest hover:bg-primary/90 transition-colors"
+                >
                     {t('checkout.success.continue')}
                 </Link>
             </div>

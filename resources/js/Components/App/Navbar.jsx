@@ -1,24 +1,18 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import { ShoppingBag, Search, Menu, X, User, Heart, Globe } from 'lucide-react';
 import CurrencyFormatter from '@/Components/CurrencyFormatter';
 import { productRoute } from '@/Helper';
 import { useTrans, useLocale } from '@/i18n';
+import SearchBar from './SearchBar';
 
 export default function Navbar() {
-    const { auth, totalQuantity, totalPrice, cartItems, availableLocales = ['en', 'ar'], app_logo } = usePage().props;
+    const { auth, totalQuantity, totalPrice, cartItems, availableLocales = ['en', 'ar'], app_logo, wishlistedProductIds = [] } = usePage().props;
     const user = auth.user;
     const t = useTrans();
     const locale = useLocale();
-
-    const initials = useMemo(() =>
-        user?.name
-            ?.split(' ')
-            .map(n => n[0])
-            .join('')
-            .slice(0, 2)
-            .toUpperCase() ?? '?',
-        [user?.name]
-    );
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     const flatCartItems = useMemo(() => {
         if (!cartItems) return [];
@@ -26,123 +20,173 @@ export default function Navbar() {
         return Object.values(cartItems).flatMap(v => Array.isArray(v.items) ? v.items : []);
     }, [cartItems]);
 
-    return (
-        <nav className="navbar bg-base-100/95 backdrop-blur-md border-b border-base-300 sticky top-0 z-50 shadow-sm">
-            <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2">
+    const switchLang = (lng) => {
+        window.location.href = route('language.switch', lng);
+    };
 
-                {/* Brand + primary nav */}
-                <div className="flex-1 flex items-center gap-1">
-                    <Link href={route('home')} className="btn btn-ghost px-2 flex items-center">
+    return (
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Top bar */}
+                <div className="hidden lg:flex items-center justify-between py-1.5 border-b border-border/50 text-xs font-body text-muted-foreground">
+                    <span>{t('product.freeShipping')}</span>
+                    <div className="flex items-center gap-4">
+                        <Link href={route('register')} className="hover:text-foreground transition-colors">{t('nav.becomeVendor')}</Link>
+                        {availableLocales.length > 1 && (
+                            <div className="flex items-center gap-2">
+                                {availableLocales.map(lng => (
+                                    <button
+                                        key={lng}
+                                        onClick={() => switchLang(lng)}
+                                        className={`text-xs font-body uppercase tracking-wide transition-colors ${locale === lng ? 'text-accent font-medium' : 'hover:text-foreground'}`}
+                                    >
+                                        {lng === 'ar' ? 'عر' : lng.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between h-16 lg:h-20">
+                    <button className="lg:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+                        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </button>
+
+                    <nav className="hidden lg:flex items-center gap-8">
+                        <Link href={route('shop')} className="text-sm font-body tracking-wide uppercase hover-gold-underline pb-1">{t('nav.shop')}</Link>
+                        <Link href={route('blog.index')} className="text-sm font-body tracking-wide uppercase hover-gold-underline pb-1">{t('nav.blog')}</Link>
+                    </nav>
+
+                    <Link href={route('home')} className="font-display text-2xl lg:text-3xl font-semibold tracking-wider">
                         {app_logo
-                            ? <img src={`/storage/${app_logo}`} alt={t('nav.brand')} className="h-8 max-w-[140px] object-contain" />
-                            : <span className="text-xl font-extrabold tracking-tight text-primary">{t('nav.brand')}</span>
+                            ? <img src={`/storage/${app_logo}`} alt={t('nav.brand')} className="h-10 max-w-[160px] object-contain" />
+                            : t('nav.brand')
                         }
                     </Link>
-                    <div className="hidden sm:flex items-center gap-1 ms-2">
-                        <Link href={route('shop')} className="btn btn-ghost btn-sm font-medium">{t('nav.shop')}</Link>
-                        <Link href={route('blog.index')} className="btn btn-ghost btn-sm font-medium">{t('nav.blog')}</Link>
-                    </div>
-                </div>
 
-                {/* Right actions */}
-                <div className="flex items-center gap-2">
-
-                    {/* Cart dropdown */}
-                    <div className="dropdown dropdown-end">
-                        <button tabIndex={0} className="btn btn-ghost btn-circle relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            {totalQuantity > 0 && (
-                                <span className="badge badge-primary badge-xs absolute -top-1 -right-1">{totalQuantity}</span>
-                            )}
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setSearchOpen(!searchOpen)} className="hidden lg:block">
+                            <Search className="w-5 h-5" />
                         </button>
 
-                        <div tabIndex={0} className="card card-compact dropdown-content bg-base-100 border border-base-300 shadow-xl z-50 mt-3 w-80 rounded-2xl">
-                            <div className="card-body gap-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold text-base">{t('nav.cart.items', { count: totalQuantity })}</span>
-                                    <span className="text-primary font-semibold text-sm">
-                                        {t('nav.cart.subtotal')} <CurrencyFormatter amount={totalPrice} />
+                        {/* Cart */}
+                        <div className="relative group">
+                            <Link href={route('cart.index')} className="relative block">
+                                <ShoppingBag className="w-5 h-5" />
+                                {totalQuantity > 0 && (
+                                    <span className="absolute -top-2 -end-2 w-5 h-5 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center font-body font-medium">
+                                        {totalQuantity}
                                     </span>
-                                </div>
+                                )}
+                            </Link>
 
-                                <div className="max-h-64 overflow-y-auto flex flex-col gap-1 -mx-1 px-1">
-                                    {flatCartItems.length === 0 ? (
-                                        <div className="py-6 text-center text-base-content/40 text-sm">{t('nav.cart.empty')}</div>
-                                    ) : flatCartItems.map(item => (
-                                        <Link key={item.id} href={productRoute(item)} className="flex gap-3 p-2 rounded-xl hover:bg-base-200 transition-colors">
-                                            <img src={item.image} alt={item.title} className="w-12 h-12 rounded-lg object-cover border border-base-300 flex-shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium truncate">{item.title}</p>
-                                                <div className="flex items-center justify-between mt-1">
-                                                    <span className="text-xs text-base-content/50">{t('nav.cart.qty')} {item.quantity}</span>
-                                                    <CurrencyFormatter amount={item.price} />
-                                                </div>
-                                            </div>
+                            {/* Cart hover dropdown */}
+                            {flatCartItems.length > 0 && (
+                                <div className="absolute end-0 top-8 w-80 bg-card border border-border shadow-xl rounded-sm z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all">
+                                    <div className="p-4 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-body font-medium text-sm">{t('nav.cart.items', { count: totalQuantity })}</span>
+                                            <span className="font-body text-sm text-accent"><CurrencyFormatter amount={totalPrice} /></span>
+                                        </div>
+                                        <div className="max-h-56 overflow-y-auto space-y-2">
+                                            {flatCartItems.slice(0, 5).map(item => (
+                                                <Link key={item.id} href={productRoute(item)} className="flex gap-3 p-2 hover:bg-muted rounded-sm transition-colors">
+                                                    <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded-sm border border-border flex-shrink-0" />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-body truncate">{item.title}</p>
+                                                        <div className="flex items-center justify-between mt-1">
+                                                            <span className="text-xs text-muted-foreground font-body">×{item.quantity}</span>
+                                                            <CurrencyFormatter amount={item.price} />
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                        <Link href={route('cart.index')} className="block w-full text-center bg-primary text-primary-foreground py-2.5 font-body text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors">
+                                            {t('nav.cart.view')}
                                         </Link>
-                                    ))}
+                                    </div>
                                 </div>
-
-                                <Link href={route('cart.index')} className="btn btn-primary btn-sm w-full mt-1">
-                                    {t('nav.cart.view')}
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* User menu */}
-                    {user ? (
-                        <div className="dropdown dropdown-end">
-                            <button tabIndex={0} className="btn btn-ghost btn-circle">
-                                <div className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-bold select-none">
-                                    {initials}
-                                </div>
-                            </button>
-                            <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 border border-base-300 shadow-xl rounded-2xl z-50 mt-3 w-52 p-2 gap-0.5">
-                                <li>
-                                    <Link href={route('account.index')} className="font-medium">
-                                        {t('nav.my_account')}
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href={route('profile.edit')}>
-                                        {t('nav.profile')}
-                                    </Link>
-                                </li>
-                                <div className="divider my-1" />
-                                <li>
-                                    <Link href={route('logout')} method="post" as="button" className="text-error">
-                                        {t('nav.logout')}
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <Link href={route('login')} className="btn btn-ghost btn-sm">{t('nav.login')}</Link>
-                            <Link href={route('register')} className="btn btn-primary btn-sm">{t('nav.register')}</Link>
-                        </div>
-                    )}
-
-                    {/* Language switcher */}
-                    {availableLocales.length > 1 && (
-                        <div className="flex items-center border border-base-300 rounded-lg overflow-hidden">
-                            {availableLocales.map(l =>
-                                l === locale ? (
-                                    <span key={l} className="px-2.5 py-1 text-xs font-bold bg-primary text-primary-content">
-                                        {l.toUpperCase()}
-                                    </span>
-                                ) : (
-                                    <Link key={l} href={route('language.switch', l)} className="px-2.5 py-1 text-xs font-medium hover:bg-base-200 transition-colors">
-                                        {l.toUpperCase()}
-                                    </Link>
-                                )
                             )}
                         </div>
-                    )}
+
+                        {/* Wishlist */}
+                        {user && (
+                            <Link href={route('account.index')} className="hidden lg:block relative">
+                                <Heart className="w-5 h-5" />
+                                {wishlistedProductIds.length > 0 && (
+                                    <span className="absolute -top-2 -end-2 w-4 h-4 rounded-full bg-accent text-accent-foreground text-[10px] flex items-center justify-center font-body">{wishlistedProductIds.length}</span>
+                                )}
+                            </Link>
+                        )}
+
+                        {/* User */}
+                        {user ? (
+                            <div className="hidden lg:block relative group">
+                                <button className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-body font-bold">
+                                    {user.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                </button>
+                                <div className="absolute end-0 top-10 w-48 bg-card border border-border shadow-xl rounded-sm z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all">
+                                    <div className="py-2">
+                                        <Link href={route('account.index')} className="block px-4 py-2 text-sm font-body hover:bg-muted transition-colors">{t('nav.my_account')}</Link>
+                                        <Link href={route('profile.edit')} className="block px-4 py-2 text-sm font-body hover:bg-muted transition-colors">{t('nav.profile')}</Link>
+                                        <div className="border-t border-border my-1" />
+                                        <Link href={route('logout')} method="post" as="button" className="block w-full text-start px-4 py-2 text-sm font-body text-destructive hover:bg-muted transition-colors">{t('nav.logout')}</Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="hidden lg:flex items-center gap-2">
+                                <Link href={route('login')} className="text-sm font-body hover:text-accent transition-colors">{t('nav.login')}</Link>
+                                <Link href={route('register')} className="text-sm font-body bg-primary text-primary-foreground px-4 py-2 hover:bg-primary/90 transition-colors">{t('nav.register')}</Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
+
+                {/* Search overlay */}
+                {searchOpen && (
+                    <div className="hidden lg:block pb-4 animate-fade-in">
+                        <SearchBar onClose={() => setSearchOpen(false)} />
+                    </div>
+                )}
+
+                {/* Mobile menu */}
+                {mobileOpen && (
+                    <nav className="lg:hidden pb-6 flex flex-col gap-4 animate-fade-in border-t border-border pt-4">
+                        <Link href={route('shop')} onClick={() => setMobileOpen(false)} className="text-sm font-body tracking-wide uppercase">{t('nav.shop')}</Link>
+                        <Link href={route('blog.index')} onClick={() => setMobileOpen(false)} className="text-sm font-body tracking-wide uppercase">{t('nav.blog')}</Link>
+                        {user ? (
+                            <>
+                                <Link href={route('account.index')} onClick={() => setMobileOpen(false)} className="text-sm font-body tracking-wide uppercase">{t('nav.my_account')}</Link>
+                                <Link href={route('logout')} method="post" as="button" className="text-sm font-body tracking-wide uppercase text-start text-destructive">{t('nav.logout')}</Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link href={route('login')} onClick={() => setMobileOpen(false)} className="text-sm font-body tracking-wide uppercase">{t('nav.login')}</Link>
+                                <Link href={route('register')} onClick={() => setMobileOpen(false)} className="text-sm font-body tracking-wide uppercase">{t('nav.register')}</Link>
+                            </>
+                        )}
+                        {availableLocales.length > 1 && (
+                            <div className="flex items-center gap-4 pt-2">
+                                {availableLocales.map(lng => (
+                                    <button
+                                        key={lng}
+                                        onClick={() => switchLang(lng)}
+                                        className={`text-sm font-body uppercase ${locale === lng ? 'text-accent font-medium' : 'text-muted-foreground'}`}
+                                    >
+                                        {lng === 'ar' ? 'عر' : lng.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <div className="pt-2">
+                            <SearchBar onClose={() => setMobileOpen(false)} />
+                        </div>
+                    </nav>
+                )}
             </div>
-        </nav>
+        </header>
     );
 }

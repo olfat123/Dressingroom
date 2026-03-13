@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import CurrencyFormatter from "@/Components/CurrencyFormatter";
 import { Link, router } from "@inertiajs/react";
+import { X, Minus, Plus } from "lucide-react";
 import { productRoute } from '@/Helper';
 import { useTrans } from '@/i18n';
 
@@ -9,7 +10,6 @@ export default function CartItem({ item }) {
     const [error, setError] = useState('');
     const t = useTrans();
 
-    // Sync local qty when server updates item.quantity
     useEffect(() => {
         setQty(item.quantity);
     }, [item.quantity]);
@@ -25,7 +25,7 @@ export default function CartItem({ item }) {
         }, {
             preserveScroll: true,
             onError: (errors) => {
-                setQty(item.quantity); // revert on error
+                setQty(item.quantity);
                 setError(Object.values(errors)[0] || 'An error occurred.');
             },
         });
@@ -39,55 +39,54 @@ export default function CartItem({ item }) {
     };
 
     return (
-        <div className="flex gap-6 p-3">
-            <Link href={productRoute(item)} className="w-16 h-16 flex items-center justify-center">
-                <img src={item.image} alt={item.title} className="max-w-full max-h-full" />
+        <div className="flex gap-4 md:gap-6 pb-6 border-b border-border/50">
+            <Link href={productRoute(item)} className="w-20 h-28 md:w-24 md:h-32 bg-muted flex items-center justify-center shrink-0 rounded-sm overflow-hidden">
+                {item.image
+                    ? <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                    : <span className="font-display text-xs text-muted-foreground text-center px-2">{item.title}</span>
+                }
             </Link>
-            <div className="flex-1 flex flex-col">
-                <div className="flex-1">
-                    <h3 className="mb-3 text-sm font-semibold">
-                        <Link href={productRoute(item)}>{item.title}</Link>
-                    </h3>
-                    <div className="flex flex-col gap-1 text-sm mb-2">
-                        {item.options.map((option) => (
-                            <div key={option.id}>
-                                <strong className="font-bold">{option.type.name}:</strong> {option.name}
-                            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                    <div>
+                        <Link href={productRoute(item)} className="font-display text-base hover:text-accent transition-colors">{item.title}</Link>
+                        {(item.options || []).map(option => (
+                            <p key={option.id} className="text-xs font-body text-muted-foreground mt-0.5">
+                                {option.type?.name}: {option.name}
+                            </p>
                         ))}
                     </div>
+                    <button onClick={onDeleteClick} className="text-muted-foreground hover:text-destructive transition-colors shrink-0 mt-0.5">
+                        <X size={16} />
+                    </button>
                 </div>
-                <div className="flex justify-between items-center mt-4">
-                    <div className="flex gap-2 items-center flex-wrap">
-                        {/* Quantity stepper */}
-                        <div className="flex items-center border border-base-300 rounded-lg overflow-hidden">
-                            <button
-                                type="button"
-                                className="btn btn-ghost btn-sm px-2 rounded-none"
-                                onClick={() => updateQuantity(qty - 1)}
-                                disabled={qty <= 1}
-                            >−</button>
-                            <input
-                                type="number"
-                                min="1"
-                                value={qty}
-                                onChange={(e) => setQty(e.target.value)}
-                                onBlur={(e) => updateQuantity(e.target.value)}
-                                className="w-12 text-center bg-transparent border-0 focus:outline-none text-sm py-1"
-                            />
-                            <button
-                                type="button"
-                                className="btn btn-ghost btn-sm px-2 rounded-none"
-                                onClick={() => updateQuantity(qty + 1)}
-                            >+</button>
-                        </div>
-                        {error && <span className="text-error text-xs">{error}</span>}
-                        <button onClick={onDeleteClick} className="btn btn-sm btn-ghost text-error">{t('cart_item.remove')}</button>
+
+                <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center border border-border rounded-sm">
+                        <button
+                            type="button"
+                            className="p-2 hover:bg-muted transition-colors disabled:opacity-30"
+                            onClick={() => updateQuantity(qty - 1)}
+                            disabled={qty <= 1}
+                        >
+                            <Minus size={14} />
+                        </button>
+                        <span className="w-10 text-center font-body text-sm">{qty}</span>
+                        <button
+                            type="button"
+                            className="p-2 hover:bg-muted transition-colors"
+                            onClick={() => updateQuantity(qty + 1)}
+                        >
+                            <Plus size={14} />
+                        </button>
                     </div>
-                    <div className="font-bold text-lg">
+                    <span className="font-body font-medium">
                         <CurrencyFormatter amount={item.price * qty} />
-                    </div>
+                    </span>
                 </div>
+                {error && <p className="text-xs text-destructive mt-1 font-body">{error}</p>}
             </div>
         </div>
     );
 }
+

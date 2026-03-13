@@ -17,4 +17,5 @@ return [
     'login' => 'Login',
     'register' => 'Register',
     'blog' => 'Blog',
+    'becomeVendor' => 'Become a Vendor',
 ];

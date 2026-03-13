@@ -7,7 +7,7 @@ export default function PrimaryButton({
     return (
         <button
             {...props}
-            className={ 'btn btn-primary ' + className }
+            className={'bg-primary text-primary-foreground px-5 py-2 text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 ' + className}
             disabled={disabled}
         >
             {children}

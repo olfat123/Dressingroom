@@ -1,11 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-#app {
-    height: 100%;
+@layer base {
+    :root {
+        --background: 40 33% 96%;
+        --foreground: 30 10% 15%;
+        --card: 40 30% 98%;
+        --card-foreground: 30 10% 15%;
+        --popover: 40 30% 98%;
+        --popover-foreground: 30 10% 15%;
+        --primary: 30 10% 15%;
+        --primary-foreground: 40 33% 96%;
+        --secondary: 35 25% 90%;
+        --secondary-foreground: 30 10% 15%;
+        --muted: 35 20% 92%;
+        --muted-foreground: 30 8% 50%;
+        --accent: 38 60% 55%;
+        --accent-foreground: 30 10% 15%;
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 35 20% 88%;
+        --input: 35 20% 88%;
+        --ring: 38 60% 55%;
+        --radius: 0.25rem;
+        --gold: 38 60% 55%;
+        --gold-light: 38 50% 75%;
+        --cream: 40 33% 96%;
+        --cream-dark: 35 25% 90%;
+        --charcoal: 30 10% 15%;
+        --charcoal-light: 30 8% 35%;
+        --warm-gray: 30 8% 50%;
+        --blush: 15 30% 92%;
+        --font-display: 'Cormorant Garamond', serif;
+        --font-body: 'Outfit', sans-serif;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+        font-family: var(--font-body);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-display);
+    }
 }
 
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+    }
+    .font-body {
+        font-family: var(--font-body);
+    }
+    .hover-gold-underline {
+        @apply relative;
+    }
+    .hover-gold-underline::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-0 h-px transition-all duration-300;
+        background-color: hsl(var(--gold));
+    }
+    .hover-gold-underline:hover::after {
+        @apply w-full;
+    }
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+[dir="rtl"] .hover-gold-underline::after {
+    left: auto;
+    right: 0;
+}
+
+/* wysiwyg prose resets */
 .wysiwyg > blockquote,
 .wysiwyg > dl,
 .wysiwyg > dd,
